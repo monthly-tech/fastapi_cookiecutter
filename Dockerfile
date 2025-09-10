@@ -18,7 +18,7 @@ RUN cd /tmp && poetry config virtualenvs.create false && poetry install --no-int
 # Copy code
 WORKDIR /src
 COPY ./src/ /src
-COPY ./key.json /src/key.json
+# COPY ./key.json /src/key.json
 COPY ./deployment/gunicorn_config.py /src
 
 EXPOSE 9000
