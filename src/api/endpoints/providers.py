@@ -7,6 +7,7 @@ from google.api_core import exceptions as gcloud_exc
 from google.cloud import secretmanager
 from google.oauth2 import service_account
 
+from core.settings import settings
 from core.utils import require_api_key
 from schemas.providers import GenerateUrlSchema
 
@@ -37,18 +38,19 @@ async def generate_url(
 
         # Load credentials from key.json file
         # key_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "key.json")
-        key_path = "key.json"
+        # key_path = "key.json"
 
         try:
-            with open(key_path, "r") as key_file:
-                key_data = json.load(key_file)
+            # with open(key_path, "r") as key_file:
+            #     key_data = json.load(key_file)
 
-            credentials = service_account.Credentials.from_service_account_info(
-                key_data
-            )
-            PROJECT_ID = key_data.get("project_id")
+            # credentials = service_account.Credentials.from_service_account_info(
+            #     key_data
+            # )
+            # PROJECT_ID = key_data.get("project_id")
+            PROJECT_ID = settings.PROJECT_ID
 
-            if not PROJECT_ID:
+            if not settings.PROJECT_ID:
                 raise HTTPException(
                     status_code=500, detail="project_id not found in key.json"
                 )
@@ -69,7 +71,8 @@ async def generate_url(
         secret_path = f"projects/{PROJECT_ID}/secrets/{secret_id}"
         version_path = f"{secret_path}/versions/latest"
 
-        sm_client = secretmanager.SecretManagerServiceClient(credentials=credentials)
+        # sm_client = secretmanager.SecretManagerServiceClient(credentials=credentials)
+        sm_client = secretmanager.SecretManagerServiceClient()
         parent = f"projects/{PROJECT_ID}"
 
         # 1) Intentar leer el secreto

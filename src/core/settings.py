@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     GOOGLE_CLOUD_PROJECT: str = "celestial-gecko-449316-d2"
     BIGQUERY_DATASET: str = "template_dataset"
     BIGQUERY_LOCATION: str = "US"
+    PROJECT_ID: str = "celestial-gecko-449316-d2"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
