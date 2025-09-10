@@ -3,8 +3,7 @@ name = "template-microservice"
 version = "0.1.0"
 description = "Template microservice with FastAPI and Google Cloud integration"
 authors = ["Oliver Koyoc <oliver@monthly.la>"]
-readme = "README.md"
-packages = [{include = "src"}]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
