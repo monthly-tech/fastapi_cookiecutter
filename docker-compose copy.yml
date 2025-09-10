@@ -3,7 +3,7 @@ services:
   template-microservice:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deployment/Dockerfile
     ports:
       - "9000:9000"
     environment:
