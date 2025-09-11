@@ -13,7 +13,7 @@ RUN pip install -U pip poetry gunicorn uvicorn[standard]
 
 # Install dependencies
 COPY ./pyproject.toml ./poetry.lock ./README.md /tmp/
-RUN cd /tmp && poetry config virtualenvs.create false && poetry install --no-interaction --only=main
+RUN cd /tmp && poetry config virtualenvs.create false && poetry install --no-interaction --only=main --no-root
 
 # Copy code
 WORKDIR /src

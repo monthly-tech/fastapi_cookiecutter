@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # "http://local.dockertoolbox.tiangolo.com"]'
     BACKEND_CORS_ORIGINS: List = ["*"]
 
+    # Environment configuration
+    ENVIRONMENT: str = "development"
+
     # API Key configuration
     LOCAL_API_KEY: str = "default_api_key"
 
@@ -30,14 +33,16 @@ class Settings(BaseSettings):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Load Google Cloud credentials from key.json
-        key_path = self.PROJECT_DIR / "key.json"
-        if key_path.exists():
-            with open(key_path, "r") as key_file:
-                key_data = json.load(key_file)
-            self.GOOGLE_CLOUD_PROJECT = key_data.get(
-                "project_id", self.GOOGLE_CLOUD_PROJECT
-            )
+        # Load Google Cloud credentials from key.json only in local environment
+        if self.ENVIRONMENT.lower() == "local":
+            key_path = self.PROJECT_DIR / "key.json"
+            if key_path.exists():
+                with open(key_path, "r") as key_file:
+                    key_data = json.load(key_file)
+                self.GOOGLE_CLOUD_PROJECT = key_data.get(
+                    "project_id", self.GOOGLE_CLOUD_PROJECT
+                )
+                self.PROJECT_ID = key_data.get("project_id", self.PROJECT_ID)
 
     class Config:
         PROJECT_NAME: str = "Template Microservice"
@@ -48,23 +53,34 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
+# Google Cloud Credentials Helper
+def get_google_credentials():
+    """Get Google Cloud credentials based on environment"""
+    if settings.ENVIRONMENT.lower() == "local":
+        key_path = settings.PROJECT_DIR / "key.json"
+        if key_path.exists():
+            return service_account.Credentials.from_service_account_file(str(key_path))
+        else:
+            raise FileNotFoundError("key.json not found for local environment")
+    else:
+        # In production, use Application Default Credentials (ADC)
+        # This will automatically use the service account attached to the GCP resource
+        return None  # None means use default credentials
+
+
 # BigQuery Client Settings
 def get_bigquery_client() -> bigquery.Client:
     """Create BigQuery client with proper authentication"""
-    key_path = settings.PROJECT_DIR / "key.json"
+    credentials = get_google_credentials()
 
-    if key_path.exists():
-        # Use service account credentials from key.json
-        credentials = service_account.Credentials.from_service_account_file(
-            str(key_path)
-        )
+    if credentials:
         client = bigquery.Client(
             project=settings.GOOGLE_CLOUD_PROJECT,
             credentials=credentials,
             location=settings.BIGQUERY_LOCATION,
         )
     else:
-        # Fallback to default credentials (environment variables, etc.)
+        # Use default credentials (ADC) in production/cloud environments
         client = bigquery.Client(
             project=settings.GOOGLE_CLOUD_PROJECT, location=settings.BIGQUERY_LOCATION
         )

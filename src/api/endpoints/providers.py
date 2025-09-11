@@ -7,7 +7,7 @@ from google.api_core import exceptions as gcloud_exc
 from google.cloud import secretmanager
 from google.oauth2 import service_account
 
-from core.settings import settings
+from core.settings import get_google_credentials, settings
 from core.utils import require_api_key
 from schemas.providers import GenerateUrlSchema
 
@@ -36,31 +36,18 @@ async def generate_url(
                 status_code=400, detail="'provider' must be a non-empty string"
             )
 
-        # Load credentials from key.json file
-        # key_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "key.json")
-        # key_path = "key.json"
-
+        # Get credentials based on environment
         try:
-            # with open(key_path, "r") as key_file:
-            #     key_data = json.load(key_file)
-
-            # credentials = service_account.Credentials.from_service_account_info(
-            #     key_data
-            # )
-            # PROJECT_ID = key_data.get("project_id")
+            credentials = get_google_credentials()
             PROJECT_ID = settings.PROJECT_ID
 
-            if not settings.PROJECT_ID:
-                raise HTTPException(
-                    status_code=500, detail="project_id not found in key.json"
-                )
+            if not PROJECT_ID:
+                raise HTTPException(status_code=500, detail="PROJECT_ID not configured")
 
         except FileNotFoundError:
             raise HTTPException(
-                status_code=500, detail="key.json file not found in project root"
+                status_code=500, detail="key.json file not found for local environment"
             )
-        except json.JSONDecodeError:
-            raise HTTPException(status_code=500, detail="Invalid JSON in key.json file")
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Error loading credentials: {str(e)}"
@@ -71,8 +58,14 @@ async def generate_url(
         secret_path = f"projects/{PROJECT_ID}/secrets/{secret_id}"
         version_path = f"{secret_path}/versions/latest"
 
-        # sm_client = secretmanager.SecretManagerServiceClient(credentials=credentials)
-        sm_client = secretmanager.SecretManagerServiceClient()
+        # Create Secret Manager client with appropriate credentials
+        if credentials:
+            sm_client = secretmanager.SecretManagerServiceClient(
+                credentials=credentials
+            )
+        else:
+            # Use default credentials (ADC) in production
+            sm_client = secretmanager.SecretManagerServiceClient()
         parent = f"projects/{PROJECT_ID}"
 
         # 1) Intentar leer el secreto
