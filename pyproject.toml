@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "template-microservice"
+name = "project-name"
 version = "0.1.0"
-description = "Template microservice with FastAPI and Google Cloud integration"
-authors = ["Oliver Koyoc <oliver@monthly.la>"]
+description = "Microservice Cookie Cutter"
+authors = ["USER MONTHLY <user@monthly.la>"]
 package-mode = false
 
 [tool.poetry.dependencies]
@@ -20,7 +20,21 @@ google-oauth2-tool = "^0.0.3"
 google-cloud-bigquery = "^3.13.0"
 pyyaml = "^6.0.1"
 pydantic-settings = "^2.10.1"
-greenlet = "3.0a1"
+greenlet = "^3.0.3"
+pandas = "^2.1.0"
+monthly_functions = {git = "https://oliverknmonthly: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@github.com/monthly-tech/monthly_functions.git", branch = "main"}
+python-multipart = "^0.0.20"
+openpyxl = "^3.1.5"
+fastapi-pagination = "^0.14.1"
+firebase-admin = "^7.1.0"
+pyarrow = "^21.0.0"
+pandas-gbq = "^0.29.2"
+structlog = "^25.4.0"
+psycopg2-binary = "^2.9.10"
+pdfplumber = "^0.11.7"
+xlsxwriter = "^3.2.9"
+pg8000 = "^1.31.5"
+scalar-fastapi = "^1.4.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
