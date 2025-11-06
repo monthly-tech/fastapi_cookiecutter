@@ -149,3 +149,4 @@ clabes.db
 envs.sh
 key.json
 .env
+firebase-config.json

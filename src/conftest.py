@@ -1,6 +1,6 @@
 import pytest
 
-from .core.db import Base, engine
+from core.settings.database import Base, engine
 
 
 @pytest.fixture(autouse=True)
