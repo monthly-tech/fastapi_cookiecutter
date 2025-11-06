@@ -13,13 +13,13 @@ RUN pip install -U pip poetry gunicorn uvicorn[standard]
 
 # Install dependencies
 COPY ./pyproject.toml ./poetry.lock ./README.md /tmp/
-RUN cd /tmp && poetry config virtualenvs.create false && poetry install --no-interaction --only=main
+RUN cd /tmp && poetry config virtualenvs.create false && poetry install --no-interaction --only=main --no-root
 
 # Copy code
 WORKDIR /src
 COPY ./src/ /src
-COPY ./key.json /src/key.json
+# COPY ./key.json /src/key.json
 COPY ./deployment/gunicorn_config.py /src
 
-EXPOSE 9000
-ENTRYPOINT ["gunicorn","-k","uvicorn.workers.UvicornWorker","-b", "0.0.0.0:9000", "main:app"]
+EXPOSE 9001
+ENTRYPOINT ["gunicorn","-k","uvicorn.workers.UvicornWorker","-b", "0.0.0.0:9001", "main:app"]
